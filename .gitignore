@@ -218,3 +218,377 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# >>> BEGIN stdlayout: the rules between BEGIN and END are maintained by init_project.py. Put your own rules outside this block.
+# 本块(BEGIN 到 END 之间)的规则由 init_project.py 维护;你自己的规则请写在本块之外。
+# Why these rules / 为什么这样忽略: https://github.com/performai-org/stdlayout/blob/main/docs/PROJECT_STRUCTURE.md
+
+# --- secrets & real config ---
+config-ops/
+.env.*
+!.env.example
+*.pem
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+*.keystore
+*.jks
+
+# --- runtime data (see PROJECT_STRUCTURE.md) ---
+data/
+db/
+upload/
+logs/
+tmp/
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+
+# --- private docs (not committed) ---
+private-docs/
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+.idea/
+*.iml
+.vscode/
+.history/
+
+# --- python ---
+*.py[cod]
+
+# --- node / typescript / javascript ---
+node_modules/
+out/
+*.tsbuildinfo
+.next/
+.nuxt/
+.turbo/
+.parcel-cache/
+.eslintcache
+.pnpm-store/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- rust ---
+**/*.rs.bk
+
+# --- go ---
+*.exe
+*.exe~
+*.dll
+*.dylib
+*.test
+*.out
+go.work
+go.work.sum
+
+# --- java / kotlin ---
+*.class
+*.jar
+*.war
+*.ear
+!gradle/wrapper/gradle-wrapper.jar
+.gradle/
+hs_err_pid*
+replay_pid*
+
+# --- c / c++ ---
+*.o
+*.obj
+*.a
+*.lib
+*.gch
+*.pch
+*.dSYM/
+CMakeCache.txt
+CMakeFiles/
+cmake-build-*/
+compile_commands.json
+
+# --- swift / xcode ---
+.build/
+.swiftpm/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+Pods/
+*.ipa
+*.dSYM.zip
+
+# --- dotnet / c# / vb.net / f# ---
+[Oo]bj/
+*.nupkg
+*.snupkg
+*.pdb
+project.lock.json
+artifacts/
+TestResults/
+BenchmarkDotNet.Artifacts/
+*.user
+*.suo
+*.cache
+*.mdb
+
+# --- visual studio ---
+.vs/
+*.userosscache
+*.sln.docstates
+*.ncb
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.VC.opendb
+ipch/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.ilk
+*.idb
+*.tlog
+*.pidb
+_ReSharper*/
+*.DotSettings.user
+*.psess
+*.vsp
+*.vspx
+
+# --- android ---
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# --- flutter / dart ---
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+.flutter-plugins
+.flutter-plugins-dependencies
+.fvm/
+*.g.dart.tmp
+**/Flutter/ephemeral/
+**/Pods/
+**/ios/Flutter/Generated.xcconfig
+**/android/key.properties
+**/android/local.properties
+
+# --- cuda ---
+*.cubin
+*.fatbin
+*.ptx
+*.gpu
+*.ii
+*.cudafe1.*
+*.fatbin.c
+*.module_id
+*.nsys-rep
+*.ncu-rep
+*.qdrep
+
+# --- actionscript / flex ---
+*.swf
+bin-debug/
+bin-release/
+.metadata/
+*.swc.tmp
+*.fla.bak
+.flexProperties.local
+
+# --- julia ---
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+deps/deps.jl
+docs/build/
+docs/site/
+.CondaPkg/
+
+# --- ada ---
+*.ali
+b~*.ad[sb]
+b__*.ad[sb]
+obj/
+alire/
+*.stderr
+*.stdout
+gnatinspect.db
+
+# --- fortran ---
+*.mod
+*.smod
+
+# --- haskell ---
+dist-newstyle/
+.stack-work/
+.cabal-sandbox/
+cabal.sandbox.config
+cabal.project.local
+cabal.project.local~
+.ghc.environment.*
+*.hi
+*.dyn_hi
+*.dyn_o
+*.chi
+*.chs.h
+*.prof
+*.aux
+*.hp
+*.eventlog
+.HTF/
+
+# --- lua ---
+luac.out
+*.luac
+*.src.rock
+lua_modules/
+.luarocks/
+
+# --- ocaml ---
+_build/
+_opam/
+_esy/
+*.cmo
+*.cmi
+*.cmx
+*.cmxa
+*.cma
+*.cmxs
+*.cmt
+*.cmti
+*.annot
+*.install
+*.native
+*.byte
+.merlin
+
+# --- perl ---
+blib/
+Build
+Build.bat
+MYMETA.*
+pm_to_blib
+Makefile.old
+*.bs
+cover_db/
+nytprof.out
+
+# --- qt / qmake / cmake ---
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+CMakeLists.txt.user*
+*.autosave
+.qmake.stash
+.qmake.cache
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+*.moc
+object_script.*
+*.qmlc
+*.jsc
+build-*/
+*-build-*/
+*.qm
+*_plugin_import.cpp
+
+# --- r ---
+.Rhistory
+.Rapp.history
+.RData
+.RDataTmp
+.Ruserdata
+.Rproj.user/
+*.Rcheck/
+*_cache/
+*_files/
+.httr-oauth
+rsconnect/
+renv/library/
+renv/local/
+renv/staging/
+renv/cellar/
+*.knit.md
+*.utf8.md
+
+# --- ruby ---
+*.gem
+*.rbc
+.bundle/
+vendor/bundle/
+.yardoc/
+_yardoc/
+rdoc/
+pkg/
+.byebug_history
+.rspec_status
+*.rbo
+
+# --- delphi / pascal ---
+*.dcu
+*.bpl
+*.bpi
+*.dcp
+*.drc
+*.dres
+*.rsm
+*.tds
+*.ppu
+*.identcache
+*.projdata
+*.tvsconfig
+*.dsk
+__history/
+__recovery/
+*.~*
+Win32/
+Win64/
+
+# --- third-party (committed prebuilt libraries and tools) ---
+!third-party/
+!third-party/**
+third-party/**/.DS_Store
+third-party/**/Thumbs.db
+third-party/**/Desktop.ini
+third-party/**/*.swp
+third-party/**/*.swo
+third-party/**/*~
+third-party/**/.env
+third-party/**/.env.*
+third-party/**/id_rsa
+third-party/**/id_ed25519
+
+# --- reference-data (committed static data) ---
+!reference-data/
+!reference-data/**
+reference-data/**/.DS_Store
+reference-data/**/Thumbs.db
+reference-data/**/Desktop.ini
+reference-data/**/*.swp
+reference-data/**/*.swo
+reference-data/**/*~
+reference-data/**/.env
+reference-data/**/.env.*
+reference-data/**/id_rsa
+reference-data/**/id_ed25519
+
+# <<< END stdlayout (end of the lines maintained by init_project.py)
