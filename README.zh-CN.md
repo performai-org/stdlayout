@@ -19,7 +19,7 @@ cd /path/to/your/project && python3 init_project.py
 - 目录**不是 git 仓库**时什么都不做并提示(多半是复制错了位置);加 `--git-init` 则先执行 `git init -b main` 再继续。提交、关联远端、推送由你自己做,见 [Git 与 GitHub 使用指南](docs/GIT_GITHUB.zh-CN.md)。
 - 用 `git check-ignore` 实测:该忽略的忽略了,`deploy/` `data-ops/` `config-ops-template/` 没被忽略,没有已被跟踪的敏感文件。
 
-选项:`--data DIR...` 额外数据目录 · `--lang python go ...` 只加指定语言 · `--docs yes|no|auto` · `--no-deploy` `--no-config` `--no-data-ops` `--no-tests` `--no-manual-tests` `--no-third-party` `--no-reference-data` · `--name-prefix P` 仓库名不以该前缀开头时提示 · `--git-init` · `--undo` 撤销脚本生成的内容,只撤销你没改过的(可先用 `--dry-run` 预览) · `--dry-run`。详见 `python3 init_project.py -h`。
+选项:`--data DIR...` 额外数据目录 · `--lang python go ...` 只加指定语言 · `--docs yes|no|auto` · `--no-deploy` `--no-config` `--no-data-ops` `--no-tests` `--no-manual-tests` `--no-third-party` `--no-reference-data` · `--name-prefix P` 仓库名不以该前缀开头时提示 · `--gitignore-only` 只写 `.gitignore` 块,不建目录和其他文件;已有该块则不动 · `--git-init` · `--undo` 撤销脚本生成的内容,只撤销你没改过的(可先用 `--dry-run` 预览) · `--dry-run`。详见 `python3 init_project.py -h`。
 
 目录与规则见 [docs/PROJECT_STRUCTURE.zh-CN.md](docs/PROJECT_STRUCTURE.zh-CN.md)。
 

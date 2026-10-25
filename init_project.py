@@ -7,6 +7,7 @@ Standard library only. Safe to re-run: never overwrites files, only appends miss
     python3 init_project.py /path/to/project    # target another directory
     python3 init_project.py --data cache models # extra data dirs (ignored + created)
     python3 init_project.py --lang python go    # limit language ignores (default: all)
+    python3 init_project.py --gitignore-only    # only the .gitignore block; no directories, no other files
     python3 init_project.py --git-init          # not a git repo yet? run git init first, then do everything
     python3 init_project.py --undo              # remove what it generated, but only what you have not changed
     python3 init_project.py --dry-run           # show what it would do, change nothing
@@ -592,7 +593,7 @@ class Scaffold:
         if exe:
             p.chmod(0o755)
 
-    def gitignore(self, sections, extra_dirs):
+    def gitignore(self, sections, extra_dirs, skip_existing=False):
         # All our changes live in ONE block between GI_BEGIN and GI_END. Lines outside the block are the
         # user's: never read as ours, never modified, never reordered. Inside the block we only add
         # missing entries (new sections go before the un-ignore sections so those stay last).
@@ -609,6 +610,8 @@ class Scaffold:
         if len(begin) > 1 or len(end) > 1 or len(begin) != len(end) or (begin and end[0] < begin[0]):
             sys.exit(f"{p} has a broken stdlayout block (need exactly one BEGIN line followed by one END line). "
                      "Nothing was changed; fix or delete the block and run again.")
+        if begin and skip_existing:
+            return self.say("kept", ".gitignore  (stdlayout block already present)")
         if begin:
             before, inner, after = lines[:begin[0]], lines[begin[0] + 1:end[0]], lines[end[0] + 1:]
         else:
@@ -840,6 +843,9 @@ def main():
     ap.add_argument("--no-manual-tests", action="store_true", help="do not create manual-tests/")
     ap.add_argument("--no-tests", action="store_true", help="do not create tests/")
     ap.add_argument("--no-data-ops", action="store_true", help="do not create data-ops/sources.yaml")
+    ap.add_argument("--gitignore-only", action="store_true",
+                    help="only create the stdlayout block in .gitignore (for projects with their own layout): "
+                         "no directories or other files; if the block already exists, .gitignore is left untouched")
     ap.add_argument("--git-init", action="store_true",
                     help="if the directory is not a git repository, run `git init` first, then do everything else")
     ap.add_argument("--undo", action="store_true",
@@ -883,6 +889,9 @@ def main():
                  f"To make this folder a separate (nested) repository, run:  {Path(__file__).name} --git-init\n"
                  f"Git & GitHub guide: {PUBLIC_REPO}/blob/main/docs/GIT_GITHUB.md")
 
+    if a.gitignore_only and a.docs == "yes":
+        sys.exit("--gitignore-only creates no docs; it cannot be combined with --docs yes")
+
     # --lang keeps the always-on sections plus the chosen languages.
     # --lang:总是保留通用段,再加上选中的语言段。
     sections = GITIGNORE_SECTIONS
@@ -905,7 +914,11 @@ def main():
     dirs = RUNTIME_DIRS + [d.strip("/") for d in a.data]
     if need_init:
         s.git_init()
-    s.gitignore(sections, [d.strip("/") for d in a.data])
+    s.gitignore(sections, [d.strip("/") for d in a.data], skip_existing=a.gitignore_only)
+    if a.gitignore_only:
+        if not a.dry_run:
+            sys.exit(1 if s.verify(dirs + PRIVATE_DIRS) else 0)
+        return
     for d in dirs + PRIVATE_DIRS:
         s.mkdir(d)
     if not a.no_deploy:
