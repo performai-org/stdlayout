@@ -11,6 +11,17 @@ cd /path/to/your/project && python3 init_project.py
 
 That's it. Python 3 standard library only; safe to re-run (never overwrites, only fills in what is missing).
 
+## Why we made it
+
+Every new repo starts the same way: make a few folders, copy a `.gitignore` from the last project, call it close enough. The trouble shows up later.
+
+- **The copied `.gitignore` belongs to another project.** The old one was Python, the new one has a frontend; the old one had no sqlite, the new one does. Nothing warns you. One `git add .` later, the database is in history, and deleting the file doesn't take it out.
+- **Git touches your data directories.** If `data/` or `logs/` isn't fully ignored, switching branches can delete those files or overwrite them with another branch's copy.
+- **Config and secrets live somewhere different every time.** `config/`, `conf/`, a `.env` in the root: what may be committed and what must never be depends on someone remembering.
+- **Handover and operations run on asking around.** Where's the database? Where do uploads go? Which directories need a backup? Every project answers differently, and a directory missing from a backup is usually found on the day you need to restore.
+
+stdlayout gives every project the same layout and a `.gitignore` covering 30+ languages from day one, with a fixed place for real config (`config-ops/`), for templates (`config-ops-template/`), and for a `data-ops/sources.yaml` that says where the data lives, which is all a backup or ops person needs to read.
+
 ## What it does
 
 - Creates `data/ db/ upload/ logs/ tmp/ private-docs/` (all gitignored), `deploy/`, `config-ops-template/`, `data-ops/`, `tests/`, `manual-tests/`, `third-party/`, `reference-data/` (committed; `third-party/` holds prebuilt libraries/tools, `reference-data/` holds static lookup data such as code tables; both are fully un-ignored).
@@ -23,4 +34,4 @@ Options: `--data DIR...` extra data dirs · `--lang python go ...` limit languag
 
 See [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for the layout and rules.
 
-Before publishing: check `PUBLIC_REPO` at the top of `init_project.py` and the copyright holder in `LICENSE`.
+Made by [performai.org](https://www.performai.org/).

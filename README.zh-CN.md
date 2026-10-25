@@ -11,6 +11,17 @@ cd /path/to/your/project && python3 init_project.py
 
 就这样。只用 Python 3 标准库;可重复运行(不覆盖已有文件,只补缺少的)。
 
+## 为什么做这个
+
+每个新仓库的开头都差不多:建几个目录,从上一个项目复制一份 `.gitignore`,觉得够用了。问题是后来才冒出来的。
+
+- **抄来的 `.gitignore` 是别的项目的。** 旧项目是 Python,新项目加了前端;旧项目没用 sqlite,新项目用了。没有任何提示,一次 `git add .`,数据库就进了历史,删文件也删不掉它。
+- **数据目录被 git 碰了。** `data/`、`logs/` 没忽略干净,切分支时里面的文件可能被删掉,或者被另一个分支的版本覆盖。
+- **配置和密钥每次放的地方都不一样。** `config/`、`conf/`、根目录的 `.env`:什么能提交、什么绝对不能提交,全靠有人记得。
+- **交接和运维靠问。** 数据库在哪?上传的文件放哪?哪些目录要备份?每个项目答案都不同,漏备一个目录,往往等到要恢复的那天才发现。
+
+stdlayout 让每个项目从第一天起就有同一套目录和覆盖 30 多种语言的 `.gitignore`:真实配置固定放 `config-ops/`,模板放 `config-ops-template/`,`data-ops/sources.yaml` 写明数据在哪,做备份和运维的人只读它就够了。
+
 ## 它做什么
 
 - 创建 `data/ db/ upload/ logs/ tmp/ private-docs/`(全部 gitignore)、`deploy/`、`config-ops-template/`、`data-ops/`、`tests/`、`manual-tests/`、`third-party/`、`reference-data/`(这几个提交;`third-party/` 放现成的库和程序,`reference-data/` 放编码表之类的静态数据,两者里面一律不忽略)。
@@ -23,4 +34,4 @@ cd /path/to/your/project && python3 init_project.py
 
 目录与规则见 [docs/PROJECT_STRUCTURE.zh-CN.md](docs/PROJECT_STRUCTURE.zh-CN.md)。
 
-发布前:确认 `init_project.py` 顶部的 `PUBLIC_REPO` 和 `LICENSE` 里的版权人。
+由 [performai.org](https://www.performai.org/) 出品。
