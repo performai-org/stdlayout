@@ -26,7 +26,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-__version__ = "0.1.0"
+__version__ = "0.2.1"
 PUBLIC_REPO = "https://github.com/performai-org/stdlayout"
 FILE_ABOUT = "STDLAYOUT.md"
 FILE_EN, FILE_ZH = "PROJECT_STRUCTURE.md", "PROJECT_STRUCTURE.zh-CN.md"
