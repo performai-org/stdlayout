@@ -11,6 +11,7 @@ Standard library only. Safe to re-run: never overwrites files, only appends miss
     python3 init_project.py --git-init          # not a git repo yet? run git init first, then do everything
     python3 init_project.py --undo              # remove what it generated, but only what you have not changed
     python3 init_project.py --dry-run           # show what it would do, change nothing
+    python3 init_project.py --version           # print the version
 
 Without --git-init, a directory that is not a git repository is left untouched (you may have
 copied the script to the wrong place).
@@ -25,6 +26,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+__version__ = "0.1.0"
 PUBLIC_REPO = "https://github.com/performai-org/stdlayout"
 FILE_ABOUT = "STDLAYOUT.md"
 FILE_EN, FILE_ZH = "PROJECT_STRUCTURE.md", "PROJECT_STRUCTURE.zh-CN.md"
@@ -852,6 +854,7 @@ def main():
                     help="remove what this script generated, but only if you have not changed it "
                          "(unchanged files, empty directories, the stdlayout block in .gitignore); combine with --dry-run to preview")
     ap.add_argument("--dry-run", action="store_true", help="show what would be done, change nothing")
+    ap.add_argument("--version", action="version", version="init_project.py " + __version__)
     a = ap.parse_args()
 
     # Default target = the folder holding this script, so "copy into project root and run" works.

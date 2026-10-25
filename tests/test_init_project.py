@@ -161,6 +161,15 @@ class SourceChecks(unittest.TestCase):
                     self.assertIsNone(re.search("test|spec", f.name, re.I), f"{f}: no 'test'/'spec' in file names")
                     self.assertIn(f.suffix, {".md", ".sh"}, f"{f}: only .md and .sh files belong in manual-tests/")
 
+    def test_version_constant_is_x_y_z_and_printed_by_version_flag(self):
+        """__version__ is plain `x.y.z` (digits only) and `--version` prints it.
+        __version__ 是纯数字的 `x.y.z`,`--version` 会打印它。"""
+        version = load_module().__version__
+        self.assertRegex(version, r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
+        r = subprocess.run([sys.executable, str(SCRIPT), "--version"], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn(version, r.stdout + r.stderr)
+
     def test_no_company_specific_details(self):
         """Project rule #5: the project stays generic; no server paths or internal host names.
         不可违背 #5:项目保持通用,不出现服务器路径或内部主机名。"""
