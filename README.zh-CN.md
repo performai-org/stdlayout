@@ -52,6 +52,10 @@ stdlayout 让每个项目从第一天起就有同一套目录和覆盖 30 多种
 
 目录与规则见 [docs/PROJECT_STRUCTURE.zh-CN.md](docs/PROJECT_STRUCTURE.zh-CN.md)。
 
+## 更大的计划
+
+stdlayout 是 [performai.org](https://www.performai.org/) "零运维计划"的第一个开源项目。这个计划由一系列工具组成,目标是把软件项目的运维工作量降到接近于零。其他自动化运维项目开发完成后,会陆续开源。想第一时间知道,请在 GitHub 上关注本组织:<https://github.com/performai-org/>
+
 ## 反馈
 
 发现问题或有疑问?欢迎[提 issue](../../issues)。

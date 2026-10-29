@@ -52,6 +52,10 @@ See `python3 init_project.py -h`.
 
 See [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for the layout and rules.
 
+## Part of a larger effort
+
+stdlayout is the first open-source project of [performai.org](https://www.performai.org/)'s Zero-Ops plan, a series of tools that aim to bring the operations workload of a software project as close to zero as possible. The other automated-operations projects will be open-sourced one by one as they are completed. To be notified when they are released, follow the organization on GitHub: <https://github.com/performai-org/>
+
 ## Feedback
 
 Found a problem or have a question? Please [open an issue](../../issues).
