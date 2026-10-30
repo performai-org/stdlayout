@@ -16,9 +16,10 @@
 ├── config-ops/             # REAL config & secrets                        (gitignored)
 ├── data-ops/               # sources.yaml: where the data lives           (committed)
 ├── reference-data/         # static lookup data shipped with the code     (committed)
-├── tests/                  # test cases; run before every commit          (committed)
+├── tests/                  # test cases (+ fixtures/); run before commits (committed)
 ├── manual-tests/           # checklists for tests done by hand            (committed)
 ├── third-party/            # prebuilt libraries / tools you did not build (committed)
+├── assets/                 # images/ icons/ animations/ video/ the program shows (committed)
 ├── data/                   # data files                                   (gitignored)
 ├── db/                     # database files (sqlite, ...)                 (gitignored)
 ├── upload/                 # user-uploaded files                          (gitignored)
@@ -39,6 +40,7 @@
 | `tests/` | 提交 | 测试用例。一条命令跑完全部;CI 和每位贡献者在结束任务前运行它。 |
 | `manual-tests/` | 提交 | 需要人手工执行的测试清单和脚本。只放 `.md` / `.sh`,文件名要避开测试运行器的匹配规则。 |
 | `third-party/` | 提交 | 不是本仓库构建出来的现成库和程序(预编译二进制、vendored 库)。里面的一切都不被忽略,包括 `*.exe`/`*.dll`/`build/`。在 `MANIFEST.md` 记录来源、版本、许可证、sha256。 |
+| `assets/` | 提交 | 程序自己渲染或展示的图片、图标、动图和视频。现成的子目录 `images/ icons/ animations/ video/`。里面的一切都不被忽略。文件要小;GitHub 会拒绝超过 100 MB 的文件。不放用户上传(`upload/`)和只给文档用的图片(`docs/images/`)。 |
 | `data/` | **不提交** | 运行时产生的数据文件。 |
 | `db/` | **不提交** | 数据库文件(sqlite 等)。 |
 | `upload/` | **不提交** | 用户上传的文件。 |
@@ -52,7 +54,7 @@
 
 1. **真实配置和密钥绝不进 git**,只有模板(`config-ops-template/*.example`)进。不要把根目录 `.env` 提交。
 2. **运行时数据绝不进 git**。没被忽略的话,切分支/切 tag 可能删掉或覆盖数据,大文件也会撑爆仓库。
-3. **绝不能忽略** `config-ops-template/`、`data-ops/`、`deploy/`、`tests/`、`manual-tests/`、`third-party/`、`reference-data/`,工具依赖它们。
+3. **绝不能忽略** `config-ops-template/`、`data-ops/`、`deploy/`、`tests/`、`manual-tests/`、`third-party/`、`reference-data/`、`assets/`,工具依赖它们。
 4. 被忽略的目录 `git clone` 后并不存在,`deploy.sh` 里要 `mkdir -p`。
 5. `deploy/` 下脚本:`#!/usr/bin/env bash`、`set -euo pipefail`、带可执行位、幂等、不输出密钥、改完先 `bash -n`。
 6. 已经提交了数据文件或密钥?`git rm -r --cached <路径>`;密钥推送过就视为泄露,必须更换。

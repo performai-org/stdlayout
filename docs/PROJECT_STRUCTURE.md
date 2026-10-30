@@ -16,9 +16,10 @@ Run `python3 init_project.py` in the project root at any time: it creates what i
 ├── config-ops/             # REAL config & secrets                        (gitignored)
 ├── data-ops/               # sources.yaml: where the data lives           (committed)
 ├── reference-data/         # static lookup data shipped with the code     (committed)
-├── tests/                  # test cases; run before every commit          (committed)
+├── tests/                  # test cases (+ fixtures/); run before commits (committed)
 ├── manual-tests/           # checklists for tests done by hand            (committed)
 ├── third-party/            # prebuilt libraries / tools you did not build (committed)
+├── assets/                 # images/ icons/ animations/ video/ the program shows (committed)
 ├── data/                   # data files                                   (gitignored)
 ├── db/                     # database files (sqlite, ...)                 (gitignored)
 ├── upload/                 # user-uploaded files                          (gitignored)
@@ -39,6 +40,7 @@ Run `python3 init_project.py` in the project root at any time: it creates what i
 | `tests/` | yes | Test cases. One command runs them all; CI and every contributor run it before finishing a task. |
 | `manual-tests/` | yes | Checklists and scripts for tests a person runs by hand. Only `.md` / `.sh` files, named so no test runner picks them up. |
 | `third-party/` | yes | Ready-made libraries and programs not built from this repo (prebuilt binaries, vendored libs). Everything inside is un-ignored, `*.exe`/`*.dll`/`build/` included. Record source, version, license, sha256 in `MANIFEST.md`. |
+| `assets/` | yes | Images, icons, animations and videos the program itself renders or shows. Ready-made subdirectories `images/ icons/ animations/ video/`. Everything inside is un-ignored. Keep files small; GitHub rejects files over 100 MB. Not for user uploads (`upload/`) or documentation-only pictures (`docs/images/`). |
 | `data/` | **no** | Data files produced at runtime. |
 | `db/` | **no** | Database files (sqlite etc.). |
 | `upload/` | **no** | Files uploaded by users. |
@@ -52,7 +54,7 @@ Dependencies and build output (`.venv/`, `node_modules/`, `target/`, `dist/`, `b
 
 1. **Real config and secrets never enter git.** Only templates (`config-ops-template/*.example`) do. Do not commit a root `.env`.
 2. **Runtime data never enters git.** If it is not ignored, switching branches/tags can delete or overwrite it, and big files bloat the repo.
-3. **Never ignore** `config-ops-template/`, `data-ops/`, `deploy/`, `tests/`, `manual-tests/`, `third-party/`, `reference-data/`: tooling depends on them.
+3. **Never ignore** `config-ops-template/`, `data-ops/`, `deploy/`, `tests/`, `manual-tests/`, `third-party/`, `reference-data/`, `assets/`: tooling depends on them.
 4. Ignored directories do not exist after `git clone`; `deploy.sh` must `mkdir -p` them.
 5. Scripts in `deploy/`: `#!/usr/bin/env bash`, `set -euo pipefail`, executable bit, idempotent, never print secrets, run `bash -n` after editing.
 6. Already committed a data file or secret? `git rm -r --cached <path>`, and rotate the secret if it was ever pushed.

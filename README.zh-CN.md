@@ -29,7 +29,7 @@ stdlayout 让每个项目从第一天起就有同一套目录和覆盖 30 多种
 
 - 创建下面这些目录。项目特有的数据目录可以用 `--data` 添加。
   - **gitignore:** `data/ db/ upload/ logs/ tmp/ private-docs/`(另有 `config-ops/`,放真实配置和密钥)。
-  - **提交:** `deploy/`、`config-ops-template/`、`data-ops/`、`tests/`、`manual-tests/`、`third-party/`、`reference-data/`。`third-party/` 放现成的库和程序,`reference-data/` 放编码表之类的静态数据,两者里面一律不忽略。
+  - **提交:** `deploy/`、`config-ops-template/`、`data-ops/`、`tests/`、`manual-tests/`、`third-party/`、`reference-data/`、`assets/`。`third-party/` 放现成的库和程序,`reference-data/` 放编码表之类的静态数据,`assets/` 放程序要展示的图片、图标、动图和视频(现成子目录 `images/ icons/ animations/ video/`;GitHub 会拒绝超过 100 MB 的文件,更大的由你自己处理),三者里面一律不忽略。另外会建 `tests/fixtures/`。
 - 追加 `.gitignore`:密钥、运行时数据、系统/编辑器,以及 Python / Node & TypeScript / Rust / Go / Java & Kotlin / C & C++ / Swift / C# & .NET / Visual Studio / Android / Flutter / CUDA / ActionScript / Julia / Ada / Fortran / Haskell / Lua / OCaml / Perl / Qt / R / Ruby / Delphi(一共 32 个语言选项,完整列表见 `--help`)。**默认全部启用**,所以混用多种语言的项目从第一次提交起就被覆盖;想只保留几种就用 `--lang python go ...`。脚本写的内容都在同一个有标记的块里(`# >>> BEGIN stdlayout` … `# <<< END stdlayout`),块外你自己的行绝不改动,你已经有的规则不会重复写。`package-lock.json`、`Cargo.lock`、`go.sum` 这类锁文件故意不忽略,因为它们应该被提交。
 - 项目还是空的时,生成 `PROJECT_STRUCTURE.md` 和 `PROJECT_STRUCTURE.zh-CN.md`(目录介绍,带回本项目 [docs/](docs/PROJECT_STRUCTURE.zh-CN.md) 的链接)。
 - 目录**不是 git 仓库**时什么都不做并提示(多半是复制错了位置);加 `--git-init` 则先执行 `git init -b main` 再继续。提交、关联远端、推送由你自己做,见 [Git 与 GitHub 使用指南](docs/GIT_GITHUB.zh-CN.md)。

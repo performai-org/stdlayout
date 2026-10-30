@@ -26,7 +26,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 PUBLIC_REPO = "https://github.com/performai-org/stdlayout"
 FILE_ABOUT = "STDLAYOUT.md"
 FILE_EN, FILE_ZH = "PROJECT_STRUCTURE.md", "PROJECT_STRUCTURE.zh-CN.md"
@@ -38,9 +38,13 @@ RUNTIME_DIRS = ["data", "db", "upload", "logs", "tmp"]
 # but not created by deploy.sh because production does not need them.
 # 开发者私有目录(草稿、中间文档):创建并忽略;生产环境用不到,所以 deploy.sh 不建。
 PRIVATE_DIRS = ["private-docs"]
+# Committed subdirectories created up front, each with an empty .gitkeep (git does not track empty
+# directories), so nobody has to invent a layout for pictures or test data.
+# 预先创建的提交型子目录,各放一个空的 .gitkeep(git 不跟踪空目录),省得大家自己琢磨图片和测试数据怎么放。
+KEEP_DIRS = ["assets/images", "assets/icons", "assets/animations", "assets/video", "tests/fixtures"]
 # Must never be ignored, or deploy / backup / config-collecting tools cannot read them.
 # 绝不能被忽略的,否则部署/备份/配置汇集工具读不到。
-MUST_TRACK = ["config-ops-template/", "data-ops/", "deploy/", "tests/", "manual-tests/", "third-party/", "reference-data/"]
+MUST_TRACK = ["config-ops-template/", "data-ops/", "deploy/", "tests/", "manual-tests/", "third-party/", "reference-data/", "assets/"]
 
 # Everything the script writes into .gitignore lives between these two marker lines; the user's own
 # rules go outside them and are never touched.
@@ -54,9 +58,10 @@ GI_BEGIN_LINES = [
 ]
 THIRD_PARTY_TITLE = "third-party (committed prebuilt libraries and tools)"
 REFERENCE_DATA_TITLE = "reference-data (committed static data)"
-# These two sections un-ignore directories, so they must stay the last sections inside the block.
-# 这两段是"放行"规则,在块内必须始终排在最后。
-LAST_TITLES = [THIRD_PARTY_TITLE, REFERENCE_DATA_TITLE]
+ASSETS_TITLE = "assets (committed images and icons)"
+# These sections un-ignore directories, so they must stay the last sections inside the block.
+# 这几段是"放行"规则,在块内必须始终排在最后。
+LAST_TITLES = [THIRD_PARTY_TITLE, REFERENCE_DATA_TITLE, ASSETS_TITLE]
 
 
 def keep_all(d):
@@ -197,6 +202,7 @@ GITIGNORE_SECTIONS = [
     # 让已编译的第三方库和静态参考数据能提交。
     (THIRD_PARTY_TITLE, keep_all("third-party")),
     (REFERENCE_DATA_TITLE, keep_all("reference-data")),
+    (ASSETS_TITLE, keep_all("assets")),
 ]
 _DOTNET = "dotnet / c# / vb.net / f#"
 # Several --lang names may share one section (e.g. csharp and vb both map to dotnet).
@@ -215,7 +221,7 @@ LANG_SECTION = {"python": "python", "node": "node / typescript / javascript",
 # Sections written regardless of --lang. / 不受 --lang 限制、总会写入的段。
 ALWAYS_SECTIONS = {"secrets & real config", "runtime data (see PROJECT_STRUCTURE.md)",
                    "private docs (not committed)", "OS / editor",
-                   THIRD_PARTY_TITLE, REFERENCE_DATA_TITLE}
+                   THIRD_PARTY_TITLE, REFERENCE_DATA_TITLE, ASSETS_TITLE}
 
 
 DEPLOY_SH = """#!/usr/bin/env bash
@@ -267,8 +273,8 @@ committed on purpose (prebuilt binaries, vendored libraries, installers, SDK sna
 - Prefer a package manager and its lock file (`package-lock.json`, `Cargo.lock`, ...) when one exists;
   use this directory only for things that cannot be fetched that way.
   有包管理器和锁文件时优先用它们;只有拿不到的东西才放这里。
-- Keep files small. Very large binaries: use Git LFS (`git lfs track "third-party/**/*.bin"`).
-  文件要小;特别大的二进制用 Git LFS。
+- Keep files small: GitHub rejects any file over 100 MB; how to handle bigger ones is up to you.
+  文件要小:GitHub 会拒绝超过 100 MB 的文件;更大的怎么处理由你决定。
 - Check the license allows redistribution. Never put secrets here (`.env*` and `id_rsa` stay ignored).
   确认许可证允许再分发。不要放密钥(`.env*`、`id_rsa` 仍然被忽略)。
 """
@@ -290,8 +296,28 @@ currency codes, dictionaries. **Committed. Everything in here is un-ignored**, i
   在 `reference-data/MANIFEST.md` 记录每个文件的来源 URL、版本或日期、许可证、sha256。
 - Update by replacing the file in a commit that says why; keep the generating script in the repo if there is one.
   更新就在一次说明原因的提交里替换文件;如果有生成脚本,也放进仓库。
-- Very large files: use Git LFS (`git lfs track "reference-data/**/*.bin"`).
-  特别大的文件用 Git LFS。
+- GitHub rejects any file over 100 MB; how to handle bigger ones is up to you.
+  GitHub 会拒绝超过 100 MB 的文件;更大的怎么处理由你决定。
+"""
+
+ASSETS_README = """# assets
+
+Images, icons, animations and videos that the program itself renders or shows (logo, icons, UI pictures,
+intro clips), the same in every environment. **Committed. Everything in here is un-ignored.**
+程序自己渲染或展示的图片、图标、动图和视频(logo、图标、界面插图、引导视频),所有环境都一样。**提交到 git;这里的一切都不被忽略。**
+
+- Ready-made subdirectories: `images/`, `icons/`, `animations/` (GIF / WebP / APNG / SVG), `video/`.
+  现成的子目录:`images/`、`icons/`、`animations/`(GIF / WebP / APNG / SVG)、`video/`。
+- Keep files small: every version stays in git history forever. GitHub rejects any file over 100 MB;
+  how to handle bigger ones (Git LFS, a CDN, ...) is up to you. Compress images and video before committing.
+  文件要小:每个版本都永远留在 git 历史里。GitHub 会拒绝超过 100 MB 的文件;更大的怎么处理(Git LFS、CDN 等)由你决定。图片和视频压缩后再提交。
+- NOT for user uploads or generated pictures (that is `upload/` / `data/`, gitignored), NOT for pictures used
+  only in documentation (put those in `docs/images/`).
+  不放用户上传或运行时生成的图片(那是被忽略的 `upload/` / `data/`),不放只给文档用的图片(放 `docs/images/`)。
+- Check the license allows redistribution; record the source of third-party pictures next to them.
+  确认许可证允许再分发;第三方图片在旁边记录来源。
+- The `.gitkeep` files only keep the empty directories in git; delete one once the directory has content.
+  `.gitkeep` 只是让空目录能被 git 保留;目录里有内容后可以删掉。
 """
 
 MANUAL_TESTS_README = """# manual-tests
@@ -417,7 +443,7 @@ This project was completed by [stdlayout](%(repo)s)'s `init_project.py`.
 
 `init_project.py` is a single, dependency-free Python script. Run `python3 init_project.py` in a project root and it:
 
-- creates the standard directories `data/ db/ upload/ logs/ tmp/` (runtime data, gitignored), `private-docs/` (private notes, gitignored), `deploy/`, `config-ops-template/`, `data-ops/`, `tests/`, `manual-tests/`, `third-party/`, `reference-data/` (committed);
+- creates the standard directories `data/ db/ upload/ logs/ tmp/` (runtime data, gitignored), `private-docs/` (private notes, gitignored), `deploy/`, `config-ops-template/`, `data-ops/`, `tests/`, `manual-tests/`, `third-party/`, `reference-data/`, `assets/` (committed);
 - makes sure `.gitignore` covers real config and secrets (`config-ops/`, `.env*`), runtime data, and build output of Python, Node/TypeScript, Rust, Go, Java/Kotlin, C/C++, Swift, C#/VB.NET/.NET, Visual Studio, Android, Flutter/Dart, CUDA, ActionScript, Julia, Ada, Fortran, Haskell, Lua, OCaml, Perl, Qt, R, Ruby and Delphi;
 - never overwrites existing files; re-running only fills in what is missing;
 - does nothing in a directory that is not a git repository, unless `--git-init` is given (it then runs `git init -b main` first).
@@ -430,7 +456,7 @@ Read what the layout is and why:
 
 `init_project.py` 是一个无依赖的 Python 脚本。在项目根目录运行 `python3 init_project.py`,它会:
 
-- 创建标准目录:`data/ db/ upload/ logs/ tmp/`(运行时数据,不提交)、`private-docs/`(私有笔记,不提交)、`deploy/`、`config-ops-template/`、`data-ops/`、`tests/`、`manual-tests/`、`third-party/`、`reference-data/`(提交);
+- 创建标准目录:`data/ db/ upload/ logs/ tmp/`(运行时数据,不提交)、`private-docs/`(私有笔记,不提交)、`deploy/`、`config-ops-template/`、`data-ops/`、`tests/`、`manual-tests/`、`third-party/`、`reference-data/`、`assets/`(提交);
 - 确保 `.gitignore` 覆盖真实配置与密钥(`config-ops/`、`.env*`)、运行时数据,以及 Python、Node/TypeScript、Rust、Go、Java/Kotlin、C/C++、Swift、C#/VB.NET/.NET、Visual Studio、Android、Flutter/Dart、CUDA、ActionScript、Julia、Ada、Fortran、Haskell、Lua、OCaml、Perl、Qt、R、Ruby、Delphi 的构建产物;
 - 绝不覆盖已有文件,重复运行只补缺少的;
 - 目录不是 git 仓库时什么都不做,除非加 `--git-init`(此时先执行 `git init -b main`)。
@@ -448,9 +474,10 @@ DOC_TREE = """\
 ├── config-ops/             # REAL config & secrets                        (gitignored)
 ├── data-ops/               # sources.yaml: where the data lives           (committed)
 ├── reference-data/         # static lookup data shipped with the code     (committed)
-├── tests/                  # test cases; run before every commit          (committed)
+├── tests/                  # test cases (+ fixtures/); run before commits (committed)
 ├── manual-tests/           # checklists for tests done by hand            (committed)
 ├── third-party/            # prebuilt libraries / tools you did not build (committed)
+├── assets/                 # images/ icons/ animations/ video/ the program shows (committed)
 ├── data/                   # data files                                   (gitignored)
 ├── db/                     # database files (sqlite, ...)                 (gitignored)
 ├── upload/                 # user-uploaded files                          (gitignored)
@@ -486,6 +513,7 @@ Run `python3 init_project.py` in the project root at any time: it creates what i
 | `tests/` | yes | Test cases. One command runs them all; CI and every contributor run it before finishing a task. |
 | `manual-tests/` | yes | Checklists and scripts for tests a person runs by hand. Only `.md` / `.sh` files, named so no test runner picks them up. |
 | `third-party/` | yes | Ready-made libraries and programs not built from this repo (prebuilt binaries, vendored libs). Everything inside is un-ignored, `*.exe`/`*.dll`/`build/` included. Record source, version, license, sha256 in `MANIFEST.md`. |
+| `assets/` | yes | Images, icons, animations and videos the program itself renders or shows. Ready-made subdirectories `images/ icons/ animations/ video/`. Everything inside is un-ignored. Keep files small; GitHub rejects files over 100 MB. Not for user uploads (`upload/`) or documentation-only pictures (`docs/images/`). |
 | `data/` | **no** | Data files produced at runtime. |
 | `db/` | **no** | Database files (sqlite etc.). |
 | `upload/` | **no** | Files uploaded by users. |
@@ -499,7 +527,7 @@ Dependencies and build output (`.venv/`, `node_modules/`, `target/`, `dist/`, `b
 
 1. **Real config and secrets never enter git.** Only templates (`config-ops-template/*.example`) do. Do not commit a root `.env`.
 2. **Runtime data never enters git.** If it is not ignored, switching branches/tags can delete or overwrite it, and big files bloat the repo.
-3. **Never ignore** `config-ops-template/`, `data-ops/`, `deploy/`, `tests/`, `manual-tests/`, `third-party/`, `reference-data/`: tooling depends on them.
+3. **Never ignore** `config-ops-template/`, `data-ops/`, `deploy/`, `tests/`, `manual-tests/`, `third-party/`, `reference-data/`, `assets/`: tooling depends on them.
 4. Ignored directories do not exist after `git clone`; `deploy.sh` must `mkdir -p` them.
 5. Scripts in `deploy/`: `#!/usr/bin/env bash`, `set -euo pipefail`, executable bit, idempotent, never print secrets, run `bash -n` after editing.
 6. Already committed a data file or secret? `git rm -r --cached <path>`, and rotate the secret if it was ever pushed.
@@ -535,6 +563,7 @@ DOC_ZH = """\
 | `tests/` | 提交 | 测试用例。一条命令跑完全部;CI 和每位贡献者在结束任务前运行它。 |
 | `manual-tests/` | 提交 | 需要人手工执行的测试清单和脚本。只放 `.md` / `.sh`,文件名要避开测试运行器的匹配规则。 |
 | `third-party/` | 提交 | 不是本仓库构建出来的现成库和程序(预编译二进制、vendored 库)。里面的一切都不被忽略,包括 `*.exe`/`*.dll`/`build/`。在 `MANIFEST.md` 记录来源、版本、许可证、sha256。 |
+| `assets/` | 提交 | 程序自己渲染或展示的图片、图标、动图和视频。现成的子目录 `images/ icons/ animations/ video/`。里面的一切都不被忽略。文件要小;GitHub 会拒绝超过 100 MB 的文件。不放用户上传(`upload/`)和只给文档用的图片(`docs/images/`)。 |
 | `data/` | **不提交** | 运行时产生的数据文件。 |
 | `db/` | **不提交** | 数据库文件(sqlite 等)。 |
 | `upload/` | **不提交** | 用户上传的文件。 |
@@ -548,7 +577,7 @@ DOC_ZH = """\
 
 1. **真实配置和密钥绝不进 git**,只有模板(`config-ops-template/*.example`)进。不要把根目录 `.env` 提交。
 2. **运行时数据绝不进 git**。没被忽略的话,切分支/切 tag 可能删掉或覆盖数据,大文件也会撑爆仓库。
-3. **绝不能忽略** `config-ops-template/`、`data-ops/`、`deploy/`、`tests/`、`manual-tests/`、`third-party/`、`reference-data/`,工具依赖它们。
+3. **绝不能忽略** `config-ops-template/`、`data-ops/`、`deploy/`、`tests/`、`manual-tests/`、`third-party/`、`reference-data/`、`assets/`,工具依赖它们。
 4. 被忽略的目录 `git clone` 后并不存在,`deploy.sh` 里要 `mkdir -p`。
 5. `deploy/` 下脚本:`#!/usr/bin/env bash`、`set -euo pipefail`、带可执行位、幂等、不输出密钥、改完先 `bash -n`。
 6. 已经提交了数据文件或密钥?`git rm -r --cached <路径>`;密钥推送过就视为泄露,必须更换。
@@ -696,6 +725,8 @@ class Scaffold:
             "manual-tests/FILE-NAMING.md": MANUAL_NAMING_MD,
             "third-party/README.md": THIRD_PARTY_README,
             "reference-data/README.md": REFERENCE_DATA_README,
+            "assets/README.md": ASSETS_README,
+            **{d + "/.gitkeep": "" for d in KEEP_DIRS},
             FILE_ABOUT: ABOUT_MD % {"repo": PUBLIC_REPO},
             FILE_EN: DOC_EN % {"repo": PUBLIC_REPO, "tree": DOC_TREE},
             FILE_ZH: DOC_ZH % {"repo": PUBLIC_REPO, "tree": DOC_TREE},
@@ -717,7 +748,8 @@ class Scaffold:
         # "empty after the removals above". / 目录:子先父后。dry-run 时文件还没真删,所以"空"指"上面的删除之后为空"。
         planned = {rel for rel in generated if (self.root / rel).is_file() and
                    (self.root / rel).read_text(encoding="utf-8") == generated[rel]}
-        dir_list = sorted({str(Path(rel).parent) for rel in generated if "/" in rel}) + dirs + PRIVATE_DIRS
+        dir_list = sorted({str(Path(rel).parent) for rel in generated if "/" in rel},
+                          key=lambda d: (-d.count("/"), d)) + dirs + PRIVATE_DIRS
         for d in dir_list:
             p = self.root / d
             if not p.is_dir():
@@ -933,6 +965,10 @@ def main():
         s.write("data-ops/sources.yaml", SOURCES_YAML)
     if not a.no_reference_data:
         s.write("reference-data/README.md", REFERENCE_DATA_README)
+    s.write("assets/README.md", ASSETS_README)
+    for d in KEEP_DIRS:
+        if not (a.no_tests and d.startswith("tests/")):
+            s.write(d + "/.gitkeep", "")
     if not a.no_third_party:
         s.write("third-party/README.md", THIRD_PARTY_README)
     if not a.no_manual_tests:

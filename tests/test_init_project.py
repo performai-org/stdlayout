@@ -127,17 +127,18 @@ class SourceChecks(unittest.TestCase):
         for bad in ["package-lock.json", "Cargo.lock", "go.sum", "Gemfile.lock", "pubspec.lock",
                     "yarn.lock", "poetry.lock", "uv.lock", "renv.lock", "config/", "local/", "bin/",
                     "[Bb]in/", "lib/", "src/", "scripts/", "docs/", "tests/", "test/", "deploy/",
-                    "data-ops/", "config-ops-template/", "manual-tests/", "third-party/", "reference-data/"]:
+                    "data-ops/", "config-ops-template/", "manual-tests/", "third-party/", "reference-data/", "assets/"]:
             self.assertNotIn(bad, entries)
 
     def test_third_party_section_is_last(self):
-        """In .gitignore a later rule wins, so the third-party / reference-data negations (`!dir/**`)
-        must be the LAST two sections, otherwise build-output rules written after them would override them.
-        .gitignore 里后面的规则优先,所以 third-party / reference-data 的放行规则(`!dir/**`)必须是最后两段,
+        """In .gitignore a later rule wins, so the third-party / reference-data / assets negations (`!dir/**`)
+        must be the LAST three sections, otherwise build-output rules written after them would override them.
+        .gitignore 里后面的规则优先,所以 third-party / reference-data / assets 的放行规则(`!dir/**`)必须是最后三段,
         否则排在它们后面的构建产物规则会把它们覆盖掉。"""
         m = load_module()
-        last = [t for t, _ in m.GITIGNORE_SECTIONS[-2:]]
-        self.assertTrue(last[0].startswith("third-party") and last[1].startswith("reference-data"), last)
+        last = [t for t, _ in m.GITIGNORE_SECTIONS[-3:]]
+        self.assertTrue(last[0].startswith("third-party") and last[1].startswith("reference-data")
+                        and last[2].startswith("assets"), last)
         for title in last:
             self.assertIn(title, m.ALWAYS_SECTIONS)
 
@@ -189,11 +190,13 @@ class FreshProject(TmpRepoCase):
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertIn(".gitignore check passed", r.stdout)
         for rel in ["data", "db", "upload", "logs", "tmp", "private-docs", "deploy", "config-ops-template",
-                    "data-ops", "tests", "manual-tests", "third-party", "reference-data"]:
+                    "data-ops", "tests", "manual-tests", "third-party", "reference-data", "assets"]:
             self.assertTrue((self.d / rel).is_dir(), rel)
+        for rel in ["assets/images", "assets/icons", "assets/animations", "assets/video", "tests/fixtures"]:
+            self.assertTrue((self.d / rel / ".gitkeep").is_file(), rel)
         for rel in [".gitignore", "deploy/deploy.sh", "deploy/healthcheck.sh", "config-ops-template/README.md",
                     "data-ops/sources.yaml", "tests/README.md", "manual-tests/README.md", "manual-tests/FILE-NAMING.md", "third-party/README.md",
-                    "reference-data/README.md", "STDLAYOUT.md", "PROJECT_STRUCTURE.md",
+                    "reference-data/README.md", "assets/README.md", "STDLAYOUT.md", "PROJECT_STRUCTURE.md",
                     "PROJECT_STRUCTURE.zh-CN.md"]:
             self.assertTrue((self.d / rel).is_file(), rel)
 
@@ -273,7 +276,8 @@ class IgnoreRules(TmpRepoCase):
         提交型目录、模板、锁文件和通用目录名不能被忽略。防止规则过宽(避免误伤原则)。"""
         for path in ["config-ops-template/app.json.example", "data-ops/sources.yaml", "deploy/deploy.sh",
                      "tests/test_x.py", "manual-tests/check-windows.sh", ".env.example", "reference-data/region.sqlite3",
-                     "reference-data/id_region_codes.csv", "package-lock.json", "Cargo.lock", "go.sum",
+                     "reference-data/id_region_codes.csv", "assets/images/logo.png",
+                     "assets/animations/spin.gif", "assets/icons/a.svg", "assets/video/intro.mp4", "tests/fixtures/.gitkeep", "package-lock.json", "Cargo.lock", "go.sum",
                      "Gemfile.lock", "pubspec.lock", "renv.lock", "poetry.lock", "yarn.lock",
                      "gradle/wrapper/gradle-wrapper.jar", "README.md", "STDLAYOUT.md",
                      "src/main.py", "bin/run.sh", "lib/x.py", "config/app.yaml", "local/x", "scripts/x.sh",
@@ -299,6 +303,16 @@ class IgnoreRules(TmpRepoCase):
         for path in ["reference-data/.env", "reference-data/.DS_Store", "reference-data/x/id_rsa"]:
             self.assertTrue(ignored(self.d, path), f"{path} should be ignored")
         self.assertTrue(ignored(self.d, "data/region.sqlite"), "runtime data/ stays ignored")
+
+    def test_assets_keeps_pictures_but_not_junk(self):
+        """assets/ keeps images, GIF/WebP animations and SVG even inside build-like names, but still ignores
+        editor junk and secrets placed inside it.
+        assets/ 里的图片、GIF/WebP 动图、SVG 都保留(哪怕在 build 之类的目录名下),但里面的编辑器垃圾文件和密钥仍被忽略。"""
+        for path in ["assets/images/logo.png", "assets/animations/a.gif", "assets/animations/a.webp",
+                     "assets/icons/a.svg", "assets/build/x.png", "assets/dist/x.png"]:
+            self.assertFalse(ignored(self.d, path), f"{path} must NOT be ignored")
+        for path in ["assets/.DS_Store", "assets/images/.env", "assets/x/id_rsa"]:
+            self.assertTrue(ignored(self.d, path), f"{path} should be ignored")
 
     def test_third_party_still_ignores_junk_and_secrets(self):
         """The un-ignore of third-party/ does not re-include editor junk or secrets placed inside it.
@@ -677,7 +691,7 @@ class OutputAndDocs(TmpRepoCase):
         for name in ["PROJECT_STRUCTURE.md", "PROJECT_STRUCTURE.zh-CN.md"]:
             text = (self.d / name).read_text(encoding="utf-8")
             for rel in ["deploy/", "config-ops-template/", "config-ops/", "data-ops/", "tests/", "manual-tests/", "data/", "db/",
-                        "upload/", "logs/", "tmp/", "private-docs/", "third-party/", "reference-data/"]:
+                        "upload/", "logs/", "tmp/", "private-docs/", "third-party/", "reference-data/", "assets/"]:
                 self.assertIn(f"`{rel}`", text, f"{name} does not explain {rel}")
 
     def test_readmes_document_every_option(self):
